@@ -1,0 +1,147 @@
+#include <stdio.h>
+#include <string.h>
+
+// Estrutura que representa uma carta do Super Trunfo
+typedef struct {
+    char estado[3];
+    char codigo[4];
+    char nomeCidade[50];
+    int populacao;
+    float area;
+    float pib;
+    int numPontosTuristicos;
+    float densidadePopulacional;
+    float pibPerCapita;
+} Carta;
+
+// Função que exibe o menu de atributos disponíveis
+void exibirMenu(int atributoJaEscolhido) {
+    printf("\nEscolha um atributo para comparar:\n");
+    if (atributoJaEscolhido != 1) printf("1 - População\n");
+    if (atributoJaEscolhido != 2) printf("2 - Área (em km²)\n");
+    if (atributoJaEscolhido != 3) printf("3 - PIB (em R$)\n");
+    if (atributoJaEscolhido != 4) printf("4 - Densidade Populacional (hab/km²)\n");
+    if (atributoJaEscolhido != 5) printf("5 - PIB per Capita (R$/habitante)\n");
+}
+
+// Função que retorna o valor numérico do atributo escolhido
+float obterValorAtributo(Carta c, int opcao) {
+    switch (opcao) {
+        case 1: return c.populacao;
+        case 2: return c.area;
+        case 3: return c.pib;
+        case 4: return c.densidadePopulacional;
+        case 5: return c.pibPerCapita;
+        default: return 0;
+    }
+}
+
+// Função que retorna o nome textual do atributo
+const char* nomeAtributo(int opcao) {
+    switch (opcao) {
+        case 1: return "População";
+        case 2: return "Área";
+        case 3: return "PIB";
+        case 4: return "Densidade Populacional";
+        case 5: return "PIB per Capita";
+        default: return "Desconhecido";
+    }
+}
+
+int main() {
+    // ===== Cadastro das cartas (pré-definido) =====
+    Carta carta1, carta2;
+
+    strcpy(carta1.estado, "SP");
+    strcpy(carta1.codigo, "A01");
+    strcpy(carta1.nomeCidade, "São Paulo");
+    carta1.populacao = 12300000;
+    carta1.area = 1521.11;
+    carta1.pib = 699000000000.0;
+    carta1.numPontosTuristicos = 120;
+    carta1.densidadePopulacional = carta1.populacao / carta1.area;
+    carta1.pibPerCapita = carta1.pib / carta1.populacao;
+
+    strcpy(carta2.estado, "RJ");
+    strcpy(carta2.codigo, "A02");
+    strcpy(carta2.nomeCidade, "Rio de Janeiro");
+    carta2.populacao = 6748000;
+    carta2.area = 1182.30;
+    carta2.pib = 364000000000.0;
+    carta2.numPontosTuristicos = 85;
+    carta2.densidadePopulacional = carta2.populacao / carta2.area;
+    carta2.pibPerCapita = carta2.pib / carta2.populacao;
+
+    int atributo1 = 0, atributo2 = 0;
+
+    printf("=== SUPER TRUNFO - COMPARAÇÃO AVANÇADA ===\n");
+    printf("\nCartas em jogo:\n");
+    printf("Carta 1: %s (%s)\n", carta1.nomeCidade, carta1.estado);
+    printf("Carta 2: %s (%s)\n", carta2.nomeCidade, carta2.estado);
+
+    // ===== Escolha do primeiro atributo =====
+    do {
+        exibirMenu(0);
+        printf("Digite a opção do primeiro atributo: ");
+        scanf("%d", &atributo1);
+
+        if (atributo1 < 1 || atributo1 > 5)
+            printf("Opção inválida! Tente novamente.\n");
+    } while (atributo1 < 1 || atributo1 > 5);
+
+    // ===== Escolha do segundo atributo (dinâmico) =====
+    do {
+        exibirMenu(atributo1);
+        printf("Digite a opção do segundo atributo: ");
+        scanf("%d", &atributo2);
+
+        if (atributo2 == atributo1)
+            printf("Você já escolheu esse atributo! Escolha outro.\n");
+        else if (atributo2 < 1 || atributo2 > 5)
+            printf("Opção inválida! Tente novamente.\n");
+    } while (atributo2 == atributo1 || atributo2 < 1 || atributo2 > 5);
+
+    // ===== Comparação dos atributos =====
+    float valor1A = obterValorAtributo(carta1, atributo1);
+    float valor2A = obterValorAtributo(carta2, atributo1);
+    float valor1B = obterValorAtributo(carta1, atributo2);
+    float valor2B = obterValorAtributo(carta2, atributo2);
+
+    // Regra especial: para Densidade Populacional (menor vence)
+    int menorVence1 = (atributo1 == 4);
+    int menorVence2 = (atributo2 == 4);
+
+    // Comparação usando operador ternário
+    float soma1 = (menorVence1 ? (1000000 / valor1A) : valor1A)
+                + (menorVence2 ? (1000000 / valor1B) : valor1B);
+
+    float soma2 = (menorVence1 ? (1000000 / valor2A) : valor2A)
+                + (menorVence2 ? (1000000 / valor2B) : valor2B);
+
+    // ===== Exibição dos resultados =====
+    printf("\n=== RESULTADOS DA COMPARAÇÃO ===\n");
+
+    printf("\nAtributo 1: %s\n", nomeAtributo(atributo1));
+    printf("Carta 1 - %s: %.2f\n", carta1.nomeCidade, valor1A);
+    printf("Carta 2 - %s: %.2f\n", carta2.nomeCidade, valor2A);
+
+    printf("\nAtributo 2: %s\n", nomeAtributo(atributo2));
+    printf("Carta 1 - %s: %.2f\n", carta1.nomeCidade, valor1B);
+    printf("Carta 2 - %s: %.2f\n", carta2.nomeCidade, valor2B);
+
+    printf("\nSoma total dos atributos:\n");
+    printf("%s: %.2f\n", carta1.nomeCidade, soma1);
+    printf("%s: %.2f\n\n", carta2.nomeCidade, soma2);
+
+    // ===== Determinação do vencedor =====
+    if (soma1 > soma2)
+        printf("Resultado final: Carta 1 (%s) venceu!\n", carta1.nomeCidade);
+    else if (soma2 > soma1)
+        printf("Resultado final: Carta 2 (%s) venceu!\n", carta2.nomeCidade);
+    else
+        printf("Resultado final: Empate!\n");
+
+    printf("===========================================\n");
+
+    return 0;
+}
